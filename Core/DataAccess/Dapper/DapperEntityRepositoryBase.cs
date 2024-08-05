@@ -82,10 +82,10 @@ public class DapperEntityRepositoryBase<TEntity> : IEntityRepository<TEntity>
 
         for (int i = 0; i < keys.Length; i++)
         {
-            string pair = keys[i].Trim() + "=" + values[i].Trim();
+            string pair = keys[i].Trim() + "=" + values[i].Trim() +", ";
             pairs += pair;
         }
-        return pairs;
+        return pairs.Substring(0 ,pairs.Length-2);
     }
 
     public string GetPrimaryKeyName()

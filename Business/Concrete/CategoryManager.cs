@@ -1,7 +1,8 @@
-﻿using DataAccess;
+﻿using Business.Abstract;
+using DataAccess.Abstract;
 using Entities;
 
-namespace Business
+namespace Business.Concrete
 {
     public class CategoryManager : ICategoryService
     {
@@ -34,7 +35,7 @@ namespace Business
 
         public void Update(Category category)
         {
-           _categoryDal.Update(category);
+            _categoryDal.Update(category);
         }
     }
 }
