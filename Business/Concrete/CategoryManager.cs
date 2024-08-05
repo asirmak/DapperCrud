@@ -18,9 +18,9 @@ namespace Business.Concrete
             _categoryDal.Add(category);
         }
 
-        public void Delete(int id)
+        public void Delete(Category category)
         {
-            _categoryDal.Delete(id);
+            _categoryDal.Delete(category);
         }
 
         public List<Category> GetAll()
@@ -30,7 +30,7 @@ namespace Business.Concrete
 
         public Category GetById(int id)
         {
-            return _categoryDal.GetById(id);
+            return _categoryDal.Get(c=> c.CategoryID == id);
         }
 
         public void Update(Category category)

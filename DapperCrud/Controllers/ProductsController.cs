@@ -30,9 +30,9 @@ namespace DapperCrud.Controllers
         }
 
         [HttpDelete]
-        public ActionResult Delete(int id)
+        public ActionResult Delete(Product product)
         {
-            _productService.Delete(id);
+            _productService.Delete(product);
             return Ok();
         }
 

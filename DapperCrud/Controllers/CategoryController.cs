@@ -32,13 +32,6 @@ namespace DapperCrud.Controllers
             return Ok();
         }
 
-        [HttpDelete]
-        public ActionResult Delete(int id)
-        {
-            _categoryService.Delete(id);
-            return Ok();
-        }
-
         [HttpGet("getbyid")]
         public ActionResult Get(int id)
         {
@@ -51,5 +44,13 @@ namespace DapperCrud.Controllers
             _categoryService.Update(category);
             return Ok();
         }
+
+        [HttpDelete("delete")]
+        public IActionResult Delete(int id)
+        {
+            _categoryService.Delete(_categoryService.GetById(id));
+            return Ok();
+        }
+
     }
 }

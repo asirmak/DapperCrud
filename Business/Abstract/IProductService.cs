@@ -11,8 +11,8 @@ namespace Business.Abstract
     {
         List<Product> GetAll();
         Product GetById(int id);
-        void Add(Product category);
-        void Delete(int id);
-        void Update(Product category);
+        void Add(Product product);
+        void Delete(Product product);
+        void Update(Product product);
     }
 }

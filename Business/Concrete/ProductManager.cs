@@ -23,9 +23,9 @@ namespace Business.Concrete
             _productDal.Add(entity);
         }
 
-        public void Delete(int id)
+        public void Delete(Product product)
         {
-            _productDal.Delete(id);
+            _productDal.Delete(product);
         }
 
         public List<Product> GetAll()
@@ -35,7 +35,7 @@ namespace Business.Concrete
 
         public Product GetById(int id)
         {
-            return _productDal.GetById(id);
+            return _productDal.Get(p=> p.ProductId == id);
         }
 
         public void Update(Product entity)

@@ -3,6 +3,7 @@ using Core.DataAccess;
 using Core.Entities;
 using Dapper;
 using System.Data.SqlClient;
+using System.Linq.Expressions;
 using static System.Net.Mime.MediaTypeNames;
 
 public class DapperEntityRepositoryBase<TEntity> : IEntityRepository<TEntity>
@@ -21,34 +22,44 @@ public class DapperEntityRepositoryBase<TEntity> : IEntityRepository<TEntity>
     {
         var values = GetColumnValues(entity);
         var columns = values.Replace("@", string.Empty);
-        var parameters = GetParameters(entity);
+        var parameters = GetAllParameters(entity);
 
         var query = $"insert into {_tableName} ({columns}) values ({values})";
         _connection.Execute(query, parameters);
     }
 
-    public void Delete(int id)
+    public void Delete(TEntity entity)
     {
-        var primaryKey = GetPrimaryKeyName();
-        _connection.Query($"delete from {_tableName} where {primaryKey} = {id}");
+        var primaryKeyName = GetPrimaryKeyName();
+        var primaryKey = GetPrimaryKey(entity);
+        var query = $"delete from {_tableName} where {primaryKeyName} = @{primaryKeyName}";
+        _connection.Execute(query, primaryKey);
     }
 
-    public TEntity GetById(int id)
+    public TEntity Get(Expression<Func<TEntity, bool>> filter)
     {
-        var primaryKey = GetPrimaryKeyName();
-        return _connection.Query<TEntity>($"select * from {_tableName} where {primaryKey} = {id}").Single();
+        var entities = _connection.Query<TEntity>($"select * from {_tableName}").ToList();
+        var compiledFilter = filter.Compile();
+        return entities.Single(compiledFilter);
     }
 
-    public List<TEntity> GetAll()
+    public List<TEntity> GetAll(Expression<Func<TEntity, bool>>? filter = null)
     {
-        return _connection.Query<TEntity>($"select * from {_tableName}").ToList();
+        var entities =  _connection.Query<TEntity>($"select * from {_tableName}").ToList();
+        if (filter != null)
+        {
+            var compiledFilter = filter.Compile();
+            entities = entities.Where(compiledFilter).ToList();
+        }
+
+        return entities;
     }
 
     public void Update(TEntity entity)
     {
         var values = GetColumnValues(entity);
         var columns = values.Replace("@", string.Empty);
-        var parameters = GetParameters(entity);
+        var parameters = GetAllParameters(entity);
         var pairs = KeyValuePair(columns, values);
         var primaryKey = GetPrimaryKeyName();
 
@@ -64,7 +75,7 @@ public class DapperEntityRepositoryBase<TEntity> : IEntityRepository<TEntity>
         return string.Join(", ", propertyNames);
     }
 
-    private static DynamicParameters GetParameters(TEntity entity)
+    private static DynamicParameters GetAllParameters(TEntity entity)
     {
         var parameters = new DynamicParameters();
         foreach (var property in typeof(TEntity).GetProperties())
@@ -72,6 +83,16 @@ public class DapperEntityRepositoryBase<TEntity> : IEntityRepository<TEntity>
             parameters.Add($"@{property.Name}", property.GetValue(entity));
         }
         return parameters;
+    }
+
+    private static DynamicParameters GetPrimaryKey(TEntity entity)
+    {
+        var primaryKey = new DynamicParameters();
+        foreach (var property in typeof(TEntity).GetProperties().Where(p => Attribute.IsDefined(p, typeof(PrimaryKeyAttribute))))
+        {
+            primaryKey.Add($"@{property.Name}", property.GetValue(entity));
+        }
+        return primaryKey;
     }
 
     public string KeyValuePair(string key, string value)
