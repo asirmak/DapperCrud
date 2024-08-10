@@ -1,1 +1,1 @@
-It is a .NET base project to achieve CRUD operation with Dapper.
+It is a .NET 6.0 base project to achieve SQL CRUD operation with Dapper.
